@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
@@ -13,7 +15,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::select(['id', 'image_id', 'name', 'description', 'details', 'price'])
+                ->with(['image' => function ($query) {
+                    return $query->select(['id', 'file']);
+                }])
+                ->latest()
+                ->orderBy('updated_at', 'desc')
+                ->get();
+        return ProductResource::collection($products);
     }
 
     /**
